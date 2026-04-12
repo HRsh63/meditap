@@ -1,5 +1,5 @@
 {
   "name": "MediTap",
   "description": "Instant Medical Identity and Digital Records Platform",
-  "requestFramePermissions": ["camera", "geolocation"]
+  "requestFramePermissions": ["camera", "geolocation", "accelerometer", "gyroscope"]
 }
