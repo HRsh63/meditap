@@ -26,7 +26,7 @@ export default defineConfig(({mode}) => {
             supabase: ['@supabase/supabase-js'],
             charts: ['recharts'],
             ai: ['@google/genai'],
-            ui: ['lucide-react', 'motion', 'clsx', 'tailwind-merge'],
+            ui: ['lucide-react', 'motion'],
           },
         },
       },
