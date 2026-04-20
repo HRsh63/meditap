@@ -59,6 +59,13 @@ export default function PatientLayout({ children, user }: PatientLayoutProps) {
     }
   ];
 
+  // Default avatar — plain grey circle with a person icon
+  const DefaultAvatar = () => (
+    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center border-2 border-brand-pink/20">
+      <UserIcon size={20} className="text-gray-400" />
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation Header */}
@@ -72,8 +79,6 @@ export default function PatientLayout({ children, user }: PatientLayoutProps) {
               <div className="w-8 h-8 candy-gradient rounded-lg flex items-center justify-center text-white font-bold">M</div>
               <span className="text-xl font-bold italic text-brand-pink">MediTap</span>
             </div>
-            
-            {/* Top Nav Items Removed as per request */}
           </div>
 
           <div className="flex items-center gap-6">
@@ -97,11 +102,15 @@ export default function PatientLayout({ children, user }: PatientLayoutProps) {
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
-                  <img 
-                    src={user.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} 
-                    alt={user.name} 
-                    className="w-10 h-10 rounded-full bg-brand-light object-cover border-2 border-brand-pink/20"
-                  />
+                  {user.profileImage ? (
+                    <img 
+                      src={user.profileImage}
+                      alt={user.name} 
+                      className="w-10 h-10 rounded-full bg-brand-light object-cover border-2 border-brand-pink/20"
+                    />
+                  ) : (
+                    <DefaultAvatar />
+                  )}
                 </button>
 
                 <AnimatePresence>
