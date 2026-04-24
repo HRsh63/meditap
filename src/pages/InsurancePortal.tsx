@@ -77,9 +77,9 @@ export default function InsurancePortal({ user }: InsurancePortalProps) {
             { icon: <FileText size={20} />, label: 'Digital Records', active: false },
             { icon: <Activity size={20} />, label: 'Pending Claims', active: false },
             { icon: <Clock size={20} />, label: 'Audit Logs', active: false },
-          ].map((item, i) => (
+          ].map((item) => (
             <button 
-              key={i}
+              key={item.label}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all ${item.active ? 'bg-brand-blue text-white shadow-lg shadow-blue-200' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               {item.icon}
@@ -89,7 +89,9 @@ export default function InsurancePortal({ user }: InsurancePortalProps) {
         </nav>
 
         <div className="mt-auto p-4 bg-gray-50 rounded-2xl flex items-center gap-3">
-          <img src={user.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} alt={user.name} className="w-10 h-10 rounded-xl bg-brand-light object-cover" />
+          <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand-pink font-black text-sm shrink-0">
+            {user.name.charAt(0)}
+          </div>
           <div className="overflow-hidden">
             <p className="font-bold text-sm truncate">{user.name}</p>
             <p className="text-xs text-gray-500 truncate">Insurance Admin</p>
@@ -126,7 +128,7 @@ export default function InsurancePortal({ user }: InsurancePortalProps) {
             { icon: <Zap size={32} />, label: 'Pending Claims', value: stats.pending, color: 'bg-pink-100 text-brand-pink', change: '-5% from last month' },
           ].map((stat, i) => (
             <motion.div 
-              key={i}
+              key={stat.label}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.1 }}
@@ -169,8 +171,8 @@ export default function InsurancePortal({ user }: InsurancePortalProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {recentUploads.map((row, i) => (
-                      <tr key={i} className="hover:bg-gray-50 transition-colors">
+                    {recentUploads.map((row) => (
+                      <tr key={row.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4">
                           <p className="font-bold text-sm">{row.profiles?.name || 'Unknown'}</p>
                         </td>

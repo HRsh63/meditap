@@ -71,5 +71,33 @@
   .candy-button-outline:active {
     transform: scale(0.95);
   }
+
+  .glass-effect {
+    @apply bg-white/40 backdrop-blur-3xl border border-white/50 shadow-sm;
+  }
+
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-3xl border border-white/60 shadow-[0_12px_40px_rgba(0,0,0,0.04)] rounded-[2.5rem] transition-all duration-500 overflow-hidden;
+  }
+  
+  .glass-card:hover {
+    @apply shadow-[0_20px_50px_rgba(0,0,0,0.06)] bg-white/50 border-white/80;
+  }
+
+  .glass-nav {
+    @apply bg-white/40 backdrop-blur-3xl border-t border-white/50 shadow-[0_-12px_40px_rgba(0,0,0,0.04)];
+  }
+
+  .glass-button {
+    @apply bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-2 transition-all hover:bg-white/60 hover:scale-105 active:scale-95 shadow-sm;
+  }
+
+  .glass-bg {
+    @apply relative overflow-hidden bg-slate-50;
+  }
+
+  .glass-blob {
+    @apply absolute blur-[120px] rounded-full opacity-30 animate-pulse pointer-events-none;
+  }
 }
 

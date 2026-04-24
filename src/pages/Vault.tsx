@@ -141,8 +141,8 @@ export default function Vault({ user }: VaultProps) {
         {/* Coverage Summary */}
         <section className="mb-16">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-black">Coverage Summary</h2>
-            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Global Network</span>
+            <h2 className="text-2xl font-black tracking-tight">Coverage Summary</h2>
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global Network</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
@@ -152,14 +152,14 @@ export default function Vault({ user }: VaultProps) {
               { label: 'Pharmacy', coverage: '70%', icon: <FileText className="text-pink-500" />, desc: 'Prescription drug discounts' },
             ].map((item, i) => (
               <motion.div 
-                key={i}
+                key={item.label}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="candy-card p-8 bg-white flex items-center justify-between group hover:border-brand-pink/20 transition-all"
+                className="glass-card p-8 flex items-center justify-between group hover:border-brand-pink/20 transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-white/40 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                     {item.icon}
                   </div>
                   <div>
@@ -178,10 +178,10 @@ export default function Vault({ user }: VaultProps) {
         {/* Recent Claims */}
         <section>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-black">Recent Claims</h2>
+            <h2 className="text-2xl font-black tracking-tight">Recent Claims</h2>
             <button 
               onClick={() => setShowAddClaim(true)}
-              className="w-10 h-10 bg-brand-light text-brand-pink rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              className="w-10 h-10 bg-white/40 backdrop-blur-md border border-white/50 text-brand-pink rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm"
             >
               <Plus size={24} />
             </button>
@@ -189,32 +189,32 @@ export default function Vault({ user }: VaultProps) {
           
           <div className="space-y-4">
             {claims.length > 0 ? (
-              claims.map((claim, i) => (
+              claims.map((claim) => (
                 <motion.div 
-                  key={i}
+                  key={claim.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="candy-card p-8 bg-white flex items-center justify-between group hover:border-brand-pink/20 transition-all"
+                  className="glass-card p-8 flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-brand-pink transition-colors">
+                    <div className="w-16 h-16 bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-brand-pink transition-colors">
                       <CreditCard size={28} />
                     </div>
                     <div>
-                      <h4 className="font-black text-xl text-gray-800">{claim.title}</h4>
-                      <p className="text-sm text-gray-400 font-bold">{new Date(claim.claim_date).toLocaleDateString()}</p>
+                      <h4 className="font-black text-xl text-gray-800 tracking-tight">{claim.title}</h4>
+                      <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">{new Date(claim.claim_date).toLocaleDateString()}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="font-black text-2xl text-gray-800">{claim.amount}</p>
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${claim.status === 'Approved' ? 'bg-green-50 text-green-500' : 'bg-orange-50 text-orange-500'}`}>
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${claim.status === 'Approved' ? 'bg-green-500/20 text-green-500' : 'bg-orange-500/20 text-orange-500'}`}>
                       {claim.status}
                     </span>
                   </div>
                 </motion.div>
               ))
             ) : (
-              <div className="p-16 text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 rounded-[2.5rem]">
+              <div className="p-16 text-center text-gray-400 font-bold glass-card border-dashed">
                 No claims found. Click + to file a new claim.
               </div>
             )}

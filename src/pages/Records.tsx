@@ -39,7 +39,16 @@ export default function Records({ user }: RecordsProps) {
     }
   };
 
-  const filters = ['All', 'Checkup', 'Lab Report', 'Prescription', 'Vaccination'];
+  const handleDownload = (record: MedicalRecord) => {
+    alert(`Downloading ${record.title}...`);
+    // Mock download
+    const link = document.createElement('a');
+    link.href = record.file_url || '#';
+    link.download = `${record.title.replace(/\s+/g, '_')}.pdf`;
+    link.click();
+  };
+
+  const filters = ['All', 'Checkup', 'Lab Report', 'Prescription', 'Discharge Note'];
 
   const filteredRecords = records.filter(record => {
     const matchesFilter = activeFilter === 'All' || record.record_type === activeFilter;
@@ -62,13 +71,13 @@ export default function Records({ user }: RecordsProps) {
   return (
     <PatientLayout user={user}>
       {/* Header */}
-      <header className="bg-white px-6 py-6 border-b border-gray-100 sticky top-0 z-20">
+      <header className="glass-nav px-6 py-4 sticky top-0 z-20 !border-t-0 !border-b border-white/50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-white/40 backdrop-blur-md border border-white/50 flex items-center justify-center text-gray-600 hover:text-brand-pink transition-colors">
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-xl font-bold">Medical Records</h1>
-          <button className="w-10 h-10 rounded-full bg-brand-pink flex items-center justify-center text-white shadow-lg">
+          <h1 className="text-xl font-bold tracking-tight">Medical Records</h1>
+          <button className="w-10 h-10 rounded-full bg-brand-pink flex items-center justify-center text-white shadow-lg hover:scale-105 transition-transform active:scale-95">
             <Plus size={20} />
           </button>
         </div>
@@ -82,7 +91,7 @@ export default function Records({ user }: RecordsProps) {
             <input 
               type="text" 
               placeholder="Search records..." 
-              className="w-full pl-12 pr-6 py-3 bg-white border-2 border-gray-100 rounded-2xl focus:border-brand-pink outline-none transition-all"
+              className="w-full pl-12 pr-6 py-3 bg-white/40 backdrop-blur-md border border-white/40 rounded-2xl focus:border-brand-pink outline-none transition-all placeholder:text-gray-400 font-medium"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -92,7 +101,7 @@ export default function Records({ user }: RecordsProps) {
               <button 
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-6 py-3 rounded-full font-bold whitespace-nowrap transition-all ${activeFilter === filter ? 'bg-brand-pink text-white shadow-lg shadow-pink-200' : 'bg-white text-gray-500 border-2 border-gray-100'}`}
+                className={`px-6 py-3 rounded-full font-bold whitespace-nowrap transition-all ${activeFilter === filter ? 'bg-brand-pink text-white shadow-lg shadow-pink-200' : 'bg-white/40 backdrop-blur-md text-gray-500 border border-white/50'}`}
               >
                 {filter}
               </button>
@@ -117,12 +126,13 @@ export default function Records({ user }: RecordsProps) {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className="candy-card p-6 bg-white flex items-center gap-6"
+                      className="glass-card p-6 flex items-center gap-6"
                     >
                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
                         record.record_type === 'Checkup' ? 'bg-blue-100 text-brand-blue' : 
                         record.record_type === 'Lab Report' ? 'bg-purple-100 text-brand-purple' : 
-                        'bg-pink-100 text-brand-pink'
+                        record.record_type === 'Prescription' ? 'bg-pink-100 text-brand-pink' :
+                        'bg-orange-100 text-orange-500'
                       }`}>
                         <FileText size={28} />
                       </div>
@@ -131,10 +141,13 @@ export default function Records({ user }: RecordsProps) {
                         <p className="text-sm text-gray-500 truncate">{record.hospital} • {new Date(record.created_at).toLocaleDateString()}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-brand-pink transition-colors">
+                        <button 
+                          onClick={() => handleDownload(record)}
+                          className="w-10 h-10 rounded-full bg-white/40 backdrop-blur-md border border-white/50 flex items-center justify-center text-gray-400 hover:text-brand-pink transition-all hover:scale-110 active:scale-95"
+                        >
                           <Download size={18} />
                         </button>
-                        <button className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-brand-pink transition-colors">
+                        <button className="w-10 h-10 rounded-full bg-white/40 backdrop-blur-md border border-white/50 flex items-center justify-center text-gray-400 hover:text-brand-pink transition-all hover:scale-110 active:scale-95">
                           <Share2 size={18} />
                         </button>
                       </div>

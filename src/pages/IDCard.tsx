@@ -14,8 +14,6 @@ interface IDCardProps {
 
 export default function IDCard({ user }: IDCardProps) {
   const navigate = useNavigate();
-  const [profileImg, setProfileImg] = useState(user.profileImage || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah');
-  const [isGenerating, setIsGenerating] = useState(false);
   const [medicalData, setMedicalData] = useState<PatientData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
@@ -69,20 +67,19 @@ export default function IDCard({ user }: IDCardProps) {
     }
   };
 
-  const handleGeneratePhoto = async () => {
-    setIsGenerating(true);
-    try {
-      const newImg = await generateMedicalImage(`A professional medical ID portrait of ${user.name}, friendly smile, clean white background, high-quality photography`);
-      if (newImg) {
-        setProfileImg(newImg);
-        // Save to profile
-        await supabase.from('profiles').update({ profile_image: newImg }).eq('id', user.id);
-      }
-    } catch (error) {
-      console.error("Failed to generate image:", error);
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleDownloadPDF = () => {
+    // Mock PDF download
+    alert('Generating your Medical ID PDF... Download starting shortly.');
+    const link = document.createElement('a');
+    link.href = '#';
+    link.download = `MediTap_ID_${user.name.replace(/\s+/g, '_')}.pdf`;
+    link.click();
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = `Check out my MediTap Medical ID! In case of emergency, scan my QR code or tap my NFC tag. ID: ${user.id.toUpperCase()}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
   };
 
   if (loading) {
@@ -96,13 +93,13 @@ export default function IDCard({ user }: IDCardProps) {
   return (
     <PatientLayout user={user}>
       {/* Header */}
-      <header className="bg-white px-6 py-6 border-b border-gray-100 sticky top-0 z-20">
+      <header className="glass-nav px-6 py-4 sticky top-0 z-20 !border-t-0 !border-b border-white/50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-white/40 backdrop-blur-md border border-white/50 flex items-center justify-center text-gray-600 hover:text-brand-pink transition-all">
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-xl font-bold">Your Digital Pass</h1>
-          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+          <h1 className="text-xl font-bold tracking-tight">Your Digital Pass</h1>
+          <div className="w-10 h-10 rounded-full bg-white/40 backdrop-blur-md border border-white/50 flex items-center justify-center text-gray-600">
             <Shield size={20} />
           </div>
         </div>
@@ -131,18 +128,9 @@ export default function IDCard({ user }: IDCardProps) {
 
             <div className="flex items-center gap-6">
               <div className="relative">
-                <img 
-                  src={profileImg} 
-                  alt={user.name} 
-                  className="w-24 h-24 rounded-2xl bg-white/20 border-2 border-white/40 object-cover"
-                />
-                <button 
-                  onClick={handleGeneratePhoto}
-                  disabled={isGenerating}
-                  className="absolute -bottom-2 -right-2 w-8 h-8 bg-white text-brand-pink rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform disabled:opacity-50"
-                >
-                  {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
-                </button>
+                <div className="w-24 h-24 rounded-2xl bg-white/20 border-2 border-white/40 flex items-center justify-center text-white font-black text-4xl">
+                  {user.name.charAt(0)}
+                </div>
               </div>
               <div>
                 <h3 className="text-2xl font-bold">{user.name}</h3>
@@ -154,7 +142,7 @@ export default function IDCard({ user }: IDCardProps) {
                   </div>
                   <div>
                     <p className="text-[10px] uppercase font-bold text-white/60">Allergies</p>
-                    <p className="text-sm font-bold">{medicalData?.allergies?.[0] || 'None'}</p>
+                    <p className="text-sm font-bold truncate max-w-[100px]">{medicalData?.allergies?.[0] || 'None'}</p>
                   </div>
                 </div>
               </div>
@@ -187,24 +175,30 @@ export default function IDCard({ user }: IDCardProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
           <button 
             onClick={() => setShowNFCModal(true)}
-            className="candy-card p-6 flex flex-col items-center gap-3 hover:border-brand-pink group relative overflow-hidden"
+            className="glass-card p-6 flex flex-col items-center gap-3 hover:border-brand-pink/50 group relative"
           >
-            <div className={`absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${isNfcActive ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+            <div className={`absolute top-4 right-4 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${isNfcActive ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-400'}`}>
               {isNfcActive ? 'ON' : 'OFF'}
             </div>
-            <div className={`w-12 h-12 ${isNfcActive ? 'bg-green-100 text-green-600' : 'bg-pink-100 text-brand-pink'} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+            <div className={`w-12 h-12 ${isNfcActive ? 'bg-green-500/20 text-green-500' : 'bg-pink-500/20 text-brand-pink'} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
               <Smartphone size={24} />
             </div>
             <span className="font-bold text-gray-700">Activate NFC</span>
           </button>
-          <button className="candy-card p-6 flex flex-col items-center gap-3 hover:border-brand-pink group">
-            <div className="w-12 h-12 bg-purple-100 text-brand-purple rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <button 
+            onClick={handleDownloadPDF}
+            className="glass-card p-6 flex flex-col items-center gap-3 hover:border-brand-pink/50 group"
+          >
+            <div className="w-12 h-12 bg-purple-500/20 text-brand-purple rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <Download size={24} />
             </div>
             <span className="font-bold text-gray-700">Download PDF</span>
           </button>
-          <button className="candy-card p-6 flex flex-col items-center gap-3 hover:border-brand-pink group">
-            <div className="w-12 h-12 bg-blue-100 text-brand-blue rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <button 
+            onClick={handleWhatsAppShare}
+            className="glass-card p-6 flex flex-col items-center gap-3 hover:border-brand-pink/50 group"
+          >
+            <div className="w-12 h-12 bg-blue-500/20 text-brand-blue rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <Share2 size={24} />
             </div>
             <span className="font-bold text-gray-700">WhatsApp Share</span>
@@ -212,7 +206,7 @@ export default function IDCard({ user }: IDCardProps) {
         </div>
 
         {/* Security Info */}
-        <div className="candy-card p-8 bg-brand-light border-brand-pink/20 flex items-start gap-6">
+        <div className="glass-card p-8 bg-brand-pink/5 border-brand-pink/20 flex items-start gap-6">
           <div className="w-12 h-12 bg-white text-brand-pink rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
             <Shield size={24} />
           </div>
@@ -264,10 +258,16 @@ export default function IDCard({ user }: IDCardProps) {
               <p className="text-gray-500 mb-8">Show this to medical personnel for instant access to your records.</p>
               
               <div className="bg-gray-50 p-8 rounded-3xl mb-8 flex items-center justify-center border-2 border-dashed border-gray-200">
-                <QrCode size={200} className="text-brand-pink opacity-80" />
+                {/* In a real app, we'd use a QR generator library here */}
+                <div className="relative group">
+                  <QrCode size={200} className="text-brand-pink opacity-80" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 rounded-xl">
+                    <p className="text-[10px] font-black text-brand-pink uppercase tracking-tighter">Permanent Key</p>
+                  </div>
+                </div>
               </div>
               
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">MediTap ID: {user.id.toUpperCase()}</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">MediTap ID: {medicalData?.qr_code || user.id.toUpperCase()}</p>
             </motion.div>
           </div>
         )}

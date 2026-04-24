@@ -91,9 +91,9 @@ export default function HospitalPortal({ user }: HospitalPortalProps) {
             { icon: <Activity size={20} />, label: 'Emergency Queue', active: false },
             { icon: <Clock size={20} />, label: 'Access Logs', active: false },
             { icon: <Shield size={20} />, label: 'Security Center', active: false },
-          ].map((item, i) => (
+          ].map((item) => (
             <button 
-              key={i}
+              key={item.label}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all ${item.active ? 'bg-brand-pink text-white shadow-lg shadow-pink-200' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               {item.icon}
@@ -103,7 +103,9 @@ export default function HospitalPortal({ user }: HospitalPortalProps) {
         </nav>
 
         <div className="mt-auto p-4 bg-gray-50 rounded-2xl flex items-center gap-3">
-          <img src={user.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} alt={user.name} className="w-10 h-10 rounded-xl bg-brand-light object-cover" />
+          <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand-pink font-black text-sm shrink-0">
+            {user.name.charAt(0)}
+          </div>
           <div className="overflow-hidden">
             <p className="font-bold text-sm truncate">{user.name}</p>
             <p className="text-xs text-gray-500 truncate">Hospital Admin</p>
@@ -212,8 +214,8 @@ export default function HospitalPortal({ user }: HospitalPortalProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {recentLogs.map((log, i) => (
-                    <tr key={i} className="hover:bg-gray-50 transition-colors">
+                  {recentLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg bg-brand-light flex items-center justify-center text-brand-pink font-bold text-xs">

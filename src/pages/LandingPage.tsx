@@ -173,11 +173,9 @@ export default function LandingPage({ user }: LandingPageProps) {
           <div className="candy-card p-8 relative z-10 overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 candy-gradient opacity-10 rounded-full -mr-16 -mt-16"></div>
             <div className="flex items-center gap-4 mb-8">
-              <img 
-                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Elena" 
-                alt="Elena" 
-                className="w-16 h-16 rounded-2xl bg-brand-light"
-              />
+              <div className="w-16 h-16 rounded-2xl bg-brand-light flex items-center justify-center text-brand-pink font-black text-3xl shrink-0">
+                E
+              </div>
               <div>
                 <h3 className="text-xl font-bold">Elena Rodriguez</h3>
                 <p className="text-gray-500">ID: MT-8829-X</p>

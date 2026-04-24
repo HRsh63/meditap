@@ -8,107 +8,113 @@ export interface Hospital {
 }
 
 export async function getNearestHospital(lat: number, lng: number): Promise<Hospital | null> {
-  try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
-    
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `I am at coordinates ${lat}, ${lng}. Find the single nearest hospital with a 24/7 emergency department. 
-      Return ONLY a JSON object with the following structure:
-      {
-        "name": "Hospital Name",
-        "phone": "Phone Number (with country code)",
-        "address": "Full Address",
-        "distance": "Approximate distance from my location"
-      }
-      If you cannot find a specific phone number, use the local emergency number (e.g., 102 or 108 in India).`,
-      config: {
-        tools: [{ googleMaps: {} }],
-        toolConfig: {
-          retrievalConfig: {
-            latLng: {
-              latitude: lat,
-              longitude: lng
-            }
-          }
-        }
-      },
-    });
+  const DEFAULT_HOSPITAL: Hospital = { 
+    name: "National Emergency Service", 
+    phone: "112", 
+    address: "Nearest Emergency Responder",
+    distance: "Priority Access"
+  };
 
-    const text = response.text || '';
-    // Extract JSON from text
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      try {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn("No GEMINI_API_KEY found. Falling back to 112.");
+      return DEFAULT_HOSPITAL;
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+    
+    // Try with tools first
+    try {
+      const response = await ai.models.generateContent({
+        model: "gemini-1.5-flash",
+        contents: `I am at coordinates ${lat}, ${lng}. Find the single nearest hospital with a 24/7 emergency department. Return ONLY a JSON object: {"name": "...", "phone": "...", "address": "...", "distance": "..."}`,
+        config: {
+          tools: [{ googleMaps: {} } as any],
+          responseMimeType: "application/json"
+        }
+      });
+
+      const text = response.text;
+      if (text) {
+        const hospital = JSON.parse(text);
+        return {
+          name: hospital.name || DEFAULT_HOSPITAL.name,
+          phone: hospital.phone || DEFAULT_HOSPITAL.phone,
+          address: hospital.address || DEFAULT_HOSPITAL.address,
+          distance: hospital.distance || DEFAULT_HOSPITAL.distance
+        };
+      }
+    } catch (toolError) {
+      console.warn("Gemini Maps tool failed, attempting text-only fallback:", toolError);
+      
+      const fallbackResponse = await ai.models.generateContent({
+        model: "gemini-1.5-flash",
+        contents: `GIVE ME A JSON OBJECT FOR THE NEAREST HOSPITAL TO LAT ${lat}, LNG ${lng}. Format: {"name": "...", "phone": "...", "address": "...", "distance": "..."}. If unknown, use "112" as phone.`
+      });
+      
+      const text = fallbackResponse.text || '';
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
         const hospital = JSON.parse(jsonMatch[0]);
         return {
-          name: hospital.name || "Nearby Hospital",
-          phone: hospital.phone || "112",
-          address: hospital.address,
-          distance: hospital.distance
-        };
-      } catch (e) {
-        console.error("Failed to parse hospital JSON", e);
-      }
-    }
-
-    // Fallback: try to extract from grounding chunks
-    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-    if (chunks && chunks.length > 0) {
-      const firstChunk = chunks.find(c => c.maps);
-      if (firstChunk && firstChunk.maps) {
-        return {
-          name: firstChunk.maps.title || "Nearby Hospital",
-          phone: "112"
+          name: hospital.name || DEFAULT_HOSPITAL.name,
+          phone: hospital.phone || DEFAULT_HOSPITAL.phone,
+          address: hospital.address || DEFAULT_HOSPITAL.address,
+          distance: hospital.distance || DEFAULT_HOSPITAL.distance
         };
       }
     }
 
-    return null;
+    return DEFAULT_HOSPITAL;
   } catch (error) {
-    console.error("Error in getNearestHospital:", error);
-    return null;
+    console.error("Critical error in getNearestHospital:", error);
+    return DEFAULT_HOSPITAL;
   }
 }
 
 export async function getTop3Hospitals(lat: number, lng: number): Promise<Hospital[]> {
+  const DEFAULT_HOSPITALS: Hospital[] = [
+    { name: "Emergency Services", phone: "112", address: "National Helpline", distance: "0 km" },
+    { name: "Ambulance Network", phone: "108", address: "Emergency Medical Transport", distance: "Live Tracking" },
+    { name: "Police Emergency", phone: "100", address: "Emergency Assistance", distance: "Rapid Response" }
+  ];
+
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return DEFAULT_HOSPITALS;
+
+    const ai = new GoogleGenAI({ apiKey });
     
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `I am at coordinates ${lat}, ${lng}. Find the TOP 3 nearest hospitals with 24/7 emergency departments. 
-      Return ONLY a JSON array of objects with the following structure:
-      [
-        {
-          "name": "Hospital Name",
-          "phone": "Phone Number",
-          "address": "Full Address",
-          "distance": "Approx distance"
-        }
-      ]`,
+      model: "gemini-1.5-flash",
+      contents: `User at ${lat}, ${lng}. List top 3 hospitals (24/7 ER) with name, phone, address, dist. JSON array only.`,
       config: {
-        tools: [{ googleMaps: {} }],
-        toolConfig: {
-          retrievalConfig: {
-            latLng: {
-              latitude: lat,
-              longitude: lng
-            }
-          }
-        }
-      },
+        tools: [{ googleMaps: {} } as any],
+        responseMimeType: "application/json"
+      }
     });
 
-    const text = response.text || '';
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+    const text = response.text;
+    if (text) {
+      const hospitals = JSON.parse(text);
+      if (Array.isArray(hospitals) && hospitals.length > 0) {
+        return hospitals.map(h => ({
+          ...h,
+          phone: h.phone?.replace(/\s+/g, '') || "112" // Sanitize for tel: links
+        }));
+      }
     }
-    return [];
+    
+    // Fallback to local search if Gemini returns empty or invalid
+    const local = searchLocalHospitals(lat, lng);
+    return local.length > 0 ? local : DEFAULT_HOSPITALS;
+
   } catch (error) {
     console.error("Error in getTop3Hospitals:", error);
-    return [];
+    // On API failure (quota etc), use local search then static defaults
+    const local = searchLocalHospitals(lat, lng);
+    return local.length > 0 ? local : DEFAULT_HOSPITALS;
   }
 }
 
